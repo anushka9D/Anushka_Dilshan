@@ -15,6 +15,8 @@
 	<link rel="stylesheet" href="css/style.css">
 
 	<script src="js/animation.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -759,7 +761,7 @@
 			<p class="text-white">How can you communicate? </p> <br><br>
 			<h2 class="text-uppercase text-white">Contact Me</h2>
 			<div class="subcribe-form" id="mc_embed_signup">
-				<form  onsubmit="sendEmail(); reset(); return false;"  class="subscription relative">
+				<form  onsubmit="sendEmail(); return false;"  class="subscription relative">
 					<div class="subscription_name-email">
 						<input name="name" id="name" placeholder="Your Name "   required type="text"/>
 						<input name="email" id="email" placeholder="Email address"  required type="email"/>
@@ -771,7 +773,7 @@
 						<textarea name="content" id="content" placeholder="Message"  required type="text"></textarea>
 					</div>
 					
-					<button class="primary-btn hover d-inline">Get Started</button>
+					<button class="primary-btn hover d-inline">Send Message</button>
 					<div class="info"></div>
 				</form>
 			</div>
@@ -910,35 +912,58 @@
 	  </script>
 
 	<!--====================== Email send section =====================-->
-<script>
-  async function sendEmail() {
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const subject = document.getElementById("subject").value;
-    const content = document.getElementById("content").value;
+	<script>
+	  async function sendEmail() {
+	    const name = document.getElementById("name").value;
+	    const email = document.getElementById("email").value;
+	    const subject = document.getElementById("subject").value;
+	    const content = document.getElementById("content").value;
+	
+	    // Show loading alert
+	    Swal.fire({
+	      title: 'Sending...',
+	      text: 'Please wait while we send your message.',
+	      allowOutsideClick: false,
+	      didOpen: () => {
+		Swal.showLoading();
+	      }
+	    });
+	
+	    try {
+	      const response = await fetch('https://my-portfolio-email-backend.onrender.com/send-email', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ name, email, subject, content }),
+	      });
+	
+	      const result = await response.text();
+	
+	      if (response.ok) {
+		Swal.fire({
+		  icon: 'success',
+		  title: 'Message Sent!',
+		  text: 'Your message has been sent successfully.',
+		});
+		document.querySelector("form").reset();
+	      } else {
+		Swal.fire({
+		  icon: 'error',
+		  title: 'Failed!',
+		  text: 'Failed to send your message. Please try again.',
+		});
+	      }
+	    } catch (error) {
+	      Swal.fire({
+		icon: 'error',
+		title: 'Error!',
+		text: 'An error occurred while sending your message.',
+	      });
+	    }
+	  }
+	</script>
 
-    try {
-      const response = await fetch('https://my-portfolio-email-backend.onrender.com/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, subject, content }),
-      });
-
-      const result = await response.text();
-
-      if (response.ok) {
-        alert('Email sent successfully!');
-      } else {
-        alert('Failed to send email');
-      }
-    } catch (error) {
-      console.error('Error sending email:', error.message);
-      alert('An error occurred');
-    }
-  }
-</script>
 
 
 	<script>
